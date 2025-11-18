@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+option go_package = "genproto/rastochnoy";
+
+package rastochnoy;
+
+service Rastochnoy {
+    rpc WriteRastochnoy (WriteRastochnoyReq) returns (WriteRastochnoyRes);
+    rpc ReadWriteRastochnoy (ReadWriteRastochnoyReq) returns (ReadWriteRastochnoyRes);
+    rpc ReadRastochnoy (ReadRastochnoyReq) returns (ReadRastochnoyRes);
+    rpc WrtieRastochnoy_db37 (WrtieRastochnoy_db37Req) returns (WrtieRastochnoy_db37Res);
+    rpc WriteRastochnoyDB33 (WriteRastochnoydb33Req) returns (WriteRastochnoydb33Res);
+    rpc ReadWriteRastochnoyDB33 (ReadWriteRastochnoyDB33Req) returns (ReadWriteRastochnoyDB33Res);
+}
+
+message ReadWriteRastoshnoyDB33Item {
+    optional string id = 1;
+    optional string key = 2;
+    optional double offsett = 3;
+    optional float value = 4;    
+}
+
+message ReadWriteRastochnoyDB33Res {
+    repeated ReadWriteRastoshnoyDB33Item data = 1;
+}
+
+message ReadWriteRastochnoyDB33Req {}
+
+message WriteRastochnoydb33Res {
+    string key = 1;
+    string message = 2;
+}
+
+message WriteRastochnoydb33Req {
+    string key = 1;
+    float value = 2;
+}
+
+message WrtieRastochnoy_db37Req {
+    string key = 1;
+    bool value = 2;
+}
+
+message WrtieRastochnoy_db37Res {
+    string message = 1;
+}
+
+message ReadWriteRastochnoyReq {}
+
+message ReadWriteRastoshnoyItem {
+    optional string id = 1;
+    optional string key = 2;
+    optional double offsett = 3;
+    optional bool value = 4;    
+}
+
+message ReadWriteRastochnoyRes {
+    repeated ReadWriteRastoshnoyItem data = 1;
+}
+
+message WriteRastochnoyReq {
+    string key = 1;
+    bool value = 2;
+}
+
+message WriteRastochnoyRes {
+    string key = 1;
+    string message = 2;
+}
+
+message ReadRastochnoyReq {}
+
+message RastochnoyItem {
+    optional string id = 1;     
+    optional string key = 2;        // Masalan: "Out_Vibor_L"
+    optional double offsett = 3;    // Masalan: 0.0
+    optional bool value = 4;      // Masalan: 1 yoki 0
+}
+
+message ReadRastochnoyRes {
+    repeated RastochnoyItem data = 1;
+}
