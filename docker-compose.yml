@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=rastochnoy
+      - POSTGRES_DB=rastochnoy_server  # bazaning nomi migrate bilan moslandi
     ports:
       - "5432:5432"
     volumes:
@@ -43,7 +43,7 @@ services:
       postgres-db:
         condition: service_healthy
       migrate:
-        condition: service_started
+        condition: service_completed_successfully  # migrate tugagandan keyin ishga tushadi
     networks:
       - app_network
     restart: always
