@@ -19,19 +19,21 @@ var (
 	clients      = make(map[*websocket.Conn]bool)
 	clientsMu    sync.Mutex
 	lastSentData []byte
-	upgrader     = websocket.Upgrader{
+
+	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
+
 	repoReader func(context.Context, *rass.ReadRastochnoyReq) (*rass.ReadRastochnoyRes, error)
 )
 
-// InitRastochnoyWS — DB o‘qish funksiyasini biriktirish
+// InitRastochnoyWS — DB reader funksiyasini biriktiradi
 func InitRastochnoyWS(reader func(context.Context, *rass.ReadRastochnoyReq) (*rass.ReadRastochnoyRes, error)) {
 	repoReader = reader
 	go startPolling()
 }
 
-// WebSocketHandler — WebSocket endpoint
+// WebSocketHandler — yangi clientni qabul qiladi
 func WebSocketHandler(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -45,7 +47,7 @@ func WebSocketHandler(c *gin.Context) {
 
 	log.Println("✅ Yangi WebSocket client ulandi")
 
-	// Hozirgi ma'lumotni yuborish
+	// 🔥 Yangi clientga faqat bir marta to‘liq ma'lumot yuboriladi
 	if repoReader != nil {
 		data, err := repoReader(context.Background(), &rass.ReadRastochnoyReq{})
 		if err == nil {
@@ -54,15 +56,17 @@ func WebSocketHandler(c *gin.Context) {
 		}
 	}
 
-	// Mijozni kuzatish
+	// Clientni kuzatish
 	go func() {
 		defer func() {
 			clientsMu.Lock()
 			delete(clients, conn)
 			clientsMu.Unlock()
+
 			conn.Close()
 			log.Println("⚠️ Client uzildi")
 		}()
+
 		for {
 			if _, _, err := conn.ReadMessage(); err != nil {
 				break
@@ -71,7 +75,7 @@ func WebSocketHandler(c *gin.Context) {
 	}()
 }
 
-// startPolling — DBni 0.1 soniyada tekshiradi
+// startPolling — DB dan o‘zgarishlarni 100ms da tekshiradi
 func startPolling() {
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
@@ -93,17 +97,20 @@ func startPolling() {
 			continue
 		}
 
-		// 🔍 Faqat o‘zgarish bo‘lsa yubor
+		// 🔍 O‘zgarish bo‘lmasa — yubormaymiz
 		if bytes.Equal(message, lastSentData) {
 			continue
 		}
 
+		// Yangi snapshotni saqlaymiz
 		lastSentData = append([]byte(nil), message...)
+
+		// 🔥 Faqat o‘zgargan data broadcast qilinadi
 		broadcast(message)
 	}
 }
 
-// broadcast — barcha WebSocket mijozlarga yuborish
+// broadcast — barcha clientlarga yuborish
 func broadcast(msg []byte) {
 	clientsMu.Lock()
 	defer clientsMu.Unlock()
