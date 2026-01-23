@@ -72,9 +72,9 @@ message ReadRastochnoyReq {}
 
 message RastochnoyItem {
     optional string id = 1;     
-    optional string key = 2;        // Masalan: "Out_Vibor_L"
-    optional double offsett = 3;    // Masalan: 0.0
-    optional bool value = 4;      // Masalan: 1 yoki 0
+    optional string key = 2;
+    optional double offsett = 3;
+    optional bool value = 4;
 }
 
 message ReadRastochnoyRes {
